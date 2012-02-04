@@ -9,10 +9,13 @@ class MoviesController < ApplicationController
   def index
     #@movies = Movie.all
     @@sort_choices = ['title', 'release_date']
-    params[:sort_on] = nil unless @@sort_choices.include?(params[:sort_on])
-    @title_class = params[:sort_on] == 'title' ? 'hilite' : ''
-    @release_date_class = params[:sort_on] == 'release_date' ? 'hilite' : ''
-    @movies = Movie.find(:all, :order => params[:sort_on])
+    
+    #update session vars
+    @@sort_choices.include?(params[:sort_on]) and @sort_on = params[:sort_on]
+    @ratings = params[:ratings] == nil ? Hash.new() : params[:ratings]
+        
+    @all_ratings = Movie.all_ratings
+    @movies = Movie.find(:all, :order => @sort_on, :conditions => {:rating => @ratings.keys})
   end
 
   def new
