@@ -6,7 +6,8 @@
   - @all_ratings.each do |rating|
     = rating
     = check_box_tag "ratings[#{rating}]", 1, @ratings.include?(rating)
-  %input{:name => 'sort_on', :type => 'hidden', :value => @sort_on}
+  - if @sort_on
+    %input{:name => 'sort_on', :type => 'hidden', :value => @sort_on}
   = submit_tag 'Refresh', :id => 'ratings_submit'
 
 %table#movies

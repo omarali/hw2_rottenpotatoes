@@ -1,5 +1,5 @@
 class MoviesController < ApplicationController
-
+    require 'ruby-debug'
   def show
     id = params[:id] # retrieve movie ID from URI route
     @movie = Movie.find(id) # look up movie by unique ID
@@ -7,13 +7,16 @@ class MoviesController < ApplicationController
   end
 
   def index
-    #@movies = Movie.all
     @@sort_choices = ['title', 'release_date']
+
+    session[:checked] = true and session[:ratings] = Hash[Movie.all_ratings.collect{|x| [x, '1']}] unless session[:checked]
     
-    #update session vars
-    @@sort_choices.include?(params[:sort_on]) and @sort_on = params[:sort_on]
-    @ratings = params[:ratings] == nil ? Hash.new() : params[:ratings]
-        
+    @sort_on = session[:sort_on] = @@sort_choices.include?(params[:sort_on]) ? params[:sort_on] : session[:sort_on]
+    @ratings = session[:ratings] = (params[:commit] or params[:ratings]) ? params[:ratings] : session[:ratings]
+
+    redirect_to movies_path(:sort_on => @sort_on, :ratings => @ratings) unless @sort_on == params[:sort_on] and @ratings == params[:ratings]
+    
+    @ratings or @ratings = Hash.new()
     @all_ratings = Movie.all_ratings
     @movies = Movie.find(:all, :order => @sort_on, :conditions => {:rating => @ratings.keys})
   end
